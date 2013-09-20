@@ -2,6 +2,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+
+    var buildFile = require('./build.js')
 
     var wrapPhaserInUmd = function(content, isAddon) {
         var replacement = [
@@ -41,6 +45,15 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+
+
+        connect: {
+            server: {
+                port:8080,
+                keepalive: true
+            }
+        },
+
         typescript: {
             base: {
                 src: ['Phaser/**/*.ts'],
@@ -52,6 +65,7 @@ module.exports = function (grunt) {
                 }
             },
         },
+
         copy: {
             main: {
                 files: [{
@@ -69,11 +83,37 @@ module.exports = function (grunt) {
                 }
             },
         },
+
         watch: {
             files: '**/*.ts',
             tasks: ['typescript', 'copy']
+        },
+
+        uglify: {
+            phaser: {
+                files: {
+                    'build/phaser.min.js': buildFile.phaser
+                },
+                options: {
+                    sourceMap: 'build/phaser.min.js.map',
+                    sourceMappingURL: 'phaser.min.js.map',
+                    // This tells the map to read files one
+                    // directory up from the "build" folder.
+                    // 'src/' is already prefixed onto the files
+                    // when the sourcemap is compiled
+                    sourceMapRoot: '../',
+                    wrap: false,
+                }
+
+            }
         }
+
     });
+    
+    grunt.registerTask('build-phaser',['concat:phaser']);
+    grunt.registerTask('build-phaser-min',['uglify:phaser'])
+    grunt.registerTask('build-all',['build-phaser','build-phaser-min']);
+
 
     grunt.registerTask('default', ['typescript', 'copy', 'watch']);
 
