@@ -46,14 +46,6 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-
-        connect: {
-            server: {
-                port:8080,
-                keepalive: true
-            }
-        },
-
         typescript: {
             base: {
                 src: ['Phaser/**/*.ts'],
@@ -89,6 +81,14 @@ module.exports = function (grunt) {
             tasks: ['typescript', 'copy']
         },
 
+
+        concat: {
+            phaser: {
+               src: buildFile.phaser,
+               dest: 'build/phaser.js' 
+            }
+        },
+
         uglify: {
             phaser: {
                 files: {
@@ -113,7 +113,6 @@ module.exports = function (grunt) {
     grunt.registerTask('build-phaser',['concat:phaser']);
     grunt.registerTask('build-phaser-min',['uglify:phaser'])
     grunt.registerTask('build-all',['build-phaser','build-phaser-min']);
-
 
     grunt.registerTask('default', ['typescript', 'copy', 'watch']);
 
